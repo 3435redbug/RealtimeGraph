@@ -30,3 +30,21 @@ module.exports = app;
 app.listen(9000, function(){
   console.log('Example app listening on port 9000!')
 });
+
+app.get('/addTemperature', function(req,res){
+  var temp = parseInt(req.query.temperature);
+  var time = parseInt(req.query.time);
+  if(temp && time && !isNaN(temp) && !isNaN(time)){
+    var newDataPoint = {
+      temperature: temp,
+      time: time
+    };
+    londonTempData.dataPoints.push(newDataPoint);
+    pusher.trigger('london-temp-chart', 'new-temperature', {
+      dataPoint: newDataPoint
+    });
+    res.send({success:true});
+  }else{
+    res.send({success:false, errorMessage: 'Invalid Query Paramaters, required - temperature & time.'});
+  }
+});
